@@ -4,13 +4,7 @@
 	<title>HeatAR</title>
 	<!-- include three.js library -->
 	<script src='js/three.js'></script>
-	<script src='js/FBXLoader.js'></script>
-	<script src='js/inflate.min.js'></script>
-	<script src='js/OrbitControls.js'></script>
-	<script src='js/FBXLoader.js'></script>
 	<script src="js/stats.min.js"></script>
-	<script src="js/curves/NURBSCurve.js"></script>
-	<script src="js/curves/NURBSUtils.js"></script>
 	<script src="js/image-aspect-ratio.js"></script>
 	<!-- include jsartookit -->
 	<script src="jsartoolkit5/artoolkit.min.js"></script>
@@ -27,6 +21,13 @@
 
 <body style='margin: 0px; overflow: hidden; font-family: Monospace;'>
 
+<video id="video1" autoplay loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+	<source src="video/01.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+</video>
+
+<video id="video2" autoplay loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+	<source src="video/02.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+</video>
 
 <img src="images/main.png" id="main" style="width: 100%; height: 100%; left: 0px, right: 0px" />
 <img src="images/Loading1.png" id="load01" style="position: absolute; width: 25%; height: 17.34%; left: 68.61%; bottom: 77.9%" />
@@ -40,20 +41,17 @@
 
 <script type="text/javascript">
 
-var scene, camera, renderer, light;
+var scene, camera, renderer, light, deltaTime, totalTime;
 
 var arToolkitSource, arToolkitContext;
 
 var markerNames, markerArray, currentMarkerName;
+var mesh1, mesh2;
+
 
 var objectArray;
 
-var previousrot=[]; 
-var previouspos=[]; 
-
 var clock = new THREE.Clock();
-
-var mixers = [];
 
 var CurObjIndex;
 
@@ -177,7 +175,7 @@ function initialize()
 	////////////////////////////////////////////////////////////
 
 	// build markerControls
-	markerNames = ["01", "02", "03", "04"];
+	markerNames = ["01", "02"];
 	
 	markerArray = [];
 	objectArray = [];
@@ -193,147 +191,55 @@ function initialize()
 		});
 	}
 
-	function onProgress1(xhr) { 
+	//first video
+	let geometry1 = new THREE.PlaneBufferGeometry(2,2, 4,4);
 
-		var prog = xhr.loaded / totalSizeAry[0] * 100;
-		var a = Math.round(totalCount * 25 + prog / 4);
-		var _percent = a / 100 * 25.5;
-		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+	let video1 = document.getElementById( 'video1' );
+	let texture1 = new THREE.VideoTexture( video1 );
+	texture1.minFilter = THREE.LinearFilter;
+	texture1.magFilter = THREE.LinearFilter;
+	texture1.format = THREE.RGBFormat;
+	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
+	
+	mesh1 = new THREE.Mesh( geometry1, material1 );
+	mesh1.rotation.x = -Math.PI/2;
+	
+	markerArray[0].add( mesh1 );
 
-		if(xhr.loaded == totalSizeAry[0]) {
-			totalCount = totalCount + 1;	
-		}
+	objectArray[0] = mesh1;
 
-		if(totalCount == 4)
-		{
-			document.getElementById("start").style.visibility = "visible";
-			document.getElementById("load01").style.visibility = "hidden";
-			document.getElementById("load02").style.visibility = "hidden";
-			$("#loadingbar").css("display", "none");
-		}
-	}
-	function onProgress2(xhr) { 
+	CurObjIndex = 0;
 
-		var prog = xhr.loaded / totalSizeAry[1] * 100;
-		var a = Math.round(totalCount * 25 + prog / 4);
-		var _percent = a / 100 * 25.5;
-		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+	//second video
+	let geometry2 = new THREE.PlaneBufferGeometry(2,2, 4,4);
 
-		if(xhr.loaded == totalSizeAry[1]) {
-			totalCount = totalCount + 1;	
-		}
-
-		if(totalCount == 4)
-		{
-			document.getElementById("start").style.visibility = "visible";
-			document.getElementById("load01").style.visibility = "hidden";
-			document.getElementById("load02").style.visibility = "hidden";
-			$("#loadingbar").css("display", "none");
-		}
-	}
-	function onProgress3(xhr) { 
-
-		var prog = xhr.loaded / totalSizeAry[2] * 100;
-		var a = Math.round(totalCount * 25 + prog / 4);
-		var _percent = a / 100 * 25.5;
-		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
-
-		if(xhr.loaded == totalSizeAry[2]) {
-			totalCount = totalCount + 1;	
-		}
-
-		if(totalCount == 4)
-		{
-			document.getElementById("start").style.visibility = "visible";
-			document.getElementById("load01").style.visibility = "hidden";
-			document.getElementById("load02").style.visibility = "hidden";
-			$("#loadingbar").css("display", "none");
-		}
-	}
-	function onProgress4(xhr) { 
-
-		var prog = xhr.loaded / totalSizeAry[3] * 100;
-		var a = Math.round(totalCount * 25 + prog / 4);
-		var _percent = a / 100 * 25.5;
-		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
-
-		if(xhr.loaded == totalSizeAry[3]) {
-			totalCount = totalCount + 1;	
-		}
-
-		if(totalCount == 4)
-		{
-			document.getElementById("start").style.visibility = "visible";
-			document.getElementById("load01").style.visibility = "hidden";
-			document.getElementById("load02").style.visibility = "hidden";
-			$("#loadingbar").css("display", "none");
-		}
-	}
-
-	function onError(xhr) { console.log( 'An error happened' ); }
-
-	// model
-
-	var loader1 = new THREE.FBXLoader();
-	loader1.load( 'models/Healy.fbx', function ( object ) {
-
-		object.scale.setScalar(0.007);
-		object.position.set(0, 0, 0); 
-
-		object.mixer = new THREE.AnimationMixer( object );
-		mixers.push( object.mixer );
-
-		var action = object.mixer.clipAction( object.animations[ 0 ] );
-		action.play();
-
-		markerArray[0].add( object );
-
-		objectArray[0] = object;
-
-		CurObjIndex = 0;
-
-	} , onProgress1, onError);
-
-	// model
-	var loader2 = new THREE.FBXLoader();
-	loader2.load( 'models/HP.fbx', function ( object ) {
-
-		object.scale.setScalar(0.005);
-        object.position.set(-0.4, 0, 0.15); 
-
-		markerArray[1].add( object );
-
-		objectArray[1] = object;
-
-	} , onProgress2, onError);
-
-	// model
-	var loader3 = new THREE.FBXLoader();
-	loader3.load( 'models/Maddinson.fbx', function ( object ) {
-
-		object.scale.setScalar(0.007);
-        object.position.set(0, 0, 0); 
-
-		markerArray[2].add( object );
-
-		objectArray[2] = object;
-
-	} , onProgress3, onError);
-
-	// model
-	var loader4 = new THREE.FBXLoader();
-	loader4.load( 'models/Syd.fbx', function ( object ) {
-
-		object.scale.setScalar(0.004);
-        object.position.set(0, 0, 0); 
-
-		markerArray[3].add( object );
-
-		objectArray[3] = object;
-
-	} , onProgress4, onError);
+	let video2 = document.getElementById( 'video2' );
+	let texture2 = new THREE.VideoTexture( video2 );
+	texture2.minFilter = THREE.LinearFilter;
+	texture2.magFilter = THREE.LinearFilter;
+	texture2.format = THREE.RGBFormat;
+	let material2 = new THREE.MeshBasicMaterial( { map: texture2 } );
+	
+	mesh2 = new THREE.Mesh( geometry2, material2 );
+	mesh2.rotation.x = -Math.PI/2;
+	
+	markerArray[1].add( mesh2 );
 
 	currentMarkerName = markerNames[0];
+
+
+	totalCount = totalCount + 1;
+	var prog = 100;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+	totalCount = totalCount + 1;
+
+	document.getElementById("start").style.visibility = "visible";
+	document.getElementById("load01").style.visibility = "hidden";
+	document.getElementById("load02").style.visibility = "hidden";
+	$("#loadingbar").css("display", "none");
 }
 
 function update()
@@ -349,17 +255,11 @@ function update()
 				if ( currentMarkerName != markerNames[i] )
 				{
 					currentMarkerName = markerNames[i];
-					mixers = [];
 
-					objectArray[i].mixer = new THREE.AnimationMixer( objectArray[i] );
 		            CurObjIndex = i;
 
-		            markerArray[CurObjIndex].position.set(0, 0, 0);
-		            markerArray[CurObjIndex].rotation.set(0, 0, 0);
-
-					mixers.push( objectArray[i].mixer );
-					var action = objectArray[i].mixer.clipAction( objectArray[i].animations[ 0 ] );
-					action.play();
+//		            markerArray[CurObjIndex].position.set(0, 0, 0);
+//		            markerArray[CurObjIndex].rotation.set(0, 0, 0);
 				}
 
 				document.getElementById("scan").style.visibility = "hidden";
@@ -374,22 +274,6 @@ function update()
 		{
 			document.getElementById("scan").style.visibility = "visible";
 		}
-/*
-		if(objectArray[CurObjIndex])
-		{
-			var pos = markerArray[CurObjIndex].position;
-			var rot = markerArray[CurObjIndex].rotation;
-
-			if(pos != {x:0,y:0,z:0})
-			{
-				markerArray[CurObjIndex].position.set(0, 0, 0); 
-			}
-			if(rot != {x:0,y:0,z:0})
-			{
-				markerArray[CurObjIndex].rotation.set(0, 0, 0);
-			}
-		}
-*/		
 	}
 
 	// update artoolkit on every frame
@@ -399,13 +283,10 @@ function update()
 
 function animate()
 {
-	requestAnimationFrame( animate );
-	if ( mixers.length > 0 ) {
-		for ( var i = 0; i < mixers.length; i ++ ) {
-			mixers[ i ].update( clock.getDelta() );
-		}
-	}
-
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+	
 	update();
 
 	renderer.render( scene, camera );
@@ -441,23 +322,6 @@ function fadeIn(el) {
         }
     };
     tick();
-}
-
-function getSize() {
-  var myWidth = 0, myHeight = 0;
-  if( typeof( window.innerWidth ) == 'number' ) {
-    //Non-IE
-    myWidth = window.innerWidth;
-    myHeight = window.innerHeight;
-  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
-    //IE 6+ in 'standards compliant mode'
-    myWidth = document.documentElement.clientWidth;
-    myHeight = document.documentElement.clientHeight;
-  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
-    //IE 4 compatible
-    myWidth = document.body.clientWidth;
-    myHeight = document.body.clientHeight;
-  }
 }
 
 $(document).ready(function(){
