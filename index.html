@@ -244,38 +244,6 @@ function Func4() {
 
 function update()
 {
-	if(totalCount == 2 && startValue == 1)
-	{
-		let anyMarkerVisible = false;
-		for (let i = 0; i < markerArray.length; i++)
-		{
-			if ( markerArray[i].visible )
-			{
-				anyMarkerVisible = true;
-				if ( currentMarkerName != markerNames[i] )
-				{
-					currentMarkerName = markerNames[i];
-
-					objectArray[CurObjIndex].stop();
-		            CurObjIndex = i;
-					objectArray[CurObjIndex].play();
-				}
-
-				document.getElementById("scan").style.visibility = "hidden";
-				document.getElementById("init").style.visibility = "visible";
-				fadeIn(document.getElementById("init"));
-
-				break;
-			}
-		}
-
-		if (objectArray[0] && !anyMarkerVisible )
-		{
-			document.getElementById("scan").style.visibility = "visible";
-			objectArray[CurObjIndex].stop();
-		}
-	}
-
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
