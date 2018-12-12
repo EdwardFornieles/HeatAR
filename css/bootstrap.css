@@ -5085,7 +5085,7 @@ input[type="button"].btn-block {
 }
 
 .progress-bar-striped {
-  background-image: linear-gradient(45deg, rgba(2, 163, 174, 0.15) 25%, transparent 25%, transparent 50%, rgba(2, 163, 174, 0.15) 50%, rgba(2, 163, 174, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(2, 163, 174, 1) 25%, transparent 25%, transparent 50%, rgba(2, 163, 174, 1) 50%, rgba(2, 163, 174, 1) 75%, transparent 75%, transparent);
   background-size: 0.4rem 0.4rem;
 }
 
