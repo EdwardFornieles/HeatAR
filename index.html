@@ -61,7 +61,6 @@ var startValue;
 
 var totalSizeAry = [6753600, 9559040, 6067712, 3091984];
 
-getSize();
 initialize();
 animate();
 
@@ -286,7 +285,7 @@ function animate()
 	requestAnimationFrame(animate);
 	deltaTime = clock.getDelta();
 	totalTime += deltaTime;
-	
+
 	update();
 
 	renderer.render( scene, camera );
