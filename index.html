@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>HeatAR</title>
+	<!-- include three.js library -->
+	<script src='js/three.js'></script>
+	<script src='js/FBXLoader.js'></script>
+	<script src='js/inflate.min.js'></script>
+	<script src='js/OrbitControls.js'></script>
+	<script src='js/FBXLoader.js'></script>
+	<script src="js/stats.min.js"></script>
+	<script src="js/curves/NURBSCurve.js"></script>
+	<script src="js/curves/NURBSUtils.js"></script>
+	<script src="js/image-aspect-ratio.js"></script>
+	<!-- include jsartookit -->
+	<script src="jsartoolkit5/artoolkit.min.js"></script>
+	<script src="jsartoolkit5/artoolkit.api.js"></script>
+	<!-- include threex.artoolkit -->
+	<script src="threex/threex-artoolkitsource.js"></script>
+	<script src="threex/threex-artoolkitcontext.js"></script>
+	<script src="threex/threex-arbasecontrols.js"></script>
+	<script src="threex/threex-armarkercontrols.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+  	<script src="js/jquery.min.js"></script>
+  	<script src="js/bootstrap.min.js"></script>
+</head>
+
+<body style='margin: 0px; overflow: hidden; font-family: Monospace;'>
+
+
+<img src="images/main.png" id="main" style="width: 100%; height: 100%; left: 0px, right: 0px" />
+<img src="images/Loading1.png" id="load01" style="position: absolute; width: 25%; height: 17.34%; left: 68.61%; bottom: 77.9%" />
+<img src="images/Loading01.png" id="load02" style="position: absolute; width: 25.97%; height: 1.81%; left: 68.42%; bottom: 87.73%" />
+<img src="images/StartBtn.png" id="start" style="position: absolute; width: 40.56%; height: 6.7%; left: 29.74%; bottom: 13.77%; z-index: 999" />
+
+<img src="images/scan.png" id="scan" style="position: absolute; width: 25%; height: 18.44%; left: 68.61%; bottom: 77.06%" />
+<img src="images/init.png" id="init" style="position: absolute; width: 25%; height: 18.44%; left: 68.61%; bottom: 77.06%" />
+
+<div class="progress-bar bg-danger progress-bar-striped progress-bar-animated " id="loadingbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style=" position: absolute; height: 1.75%; width: 0%; left: 68.6%; bottom: 87.73%;border-radius: 10px; z-index: 900"> </div>
+
+<script type="text/javascript">
+
+var scene, camera, renderer, light;
+
+var arToolkitSource, arToolkitContext;
+
+var markerNames, markerArray, currentMarkerName;
+
+var objectArray;
+
+var previousrot=[]; 
+var previouspos=[]; 
+
+var clock = new THREE.Clock();
+
+var mixers = [];
+
+var CurObjIndex;
+
+var totalCount;
+
+var startValue;
+
+var totalSizeAry = [6753600, 9559040, 6067712, 3091984];
+
+getSize();
+initialize();
+animate();
+
+function myFunction(){
+	document.getElementById("main").style.visibility = "hidden";
+	document.getElementById("start").style.visibility = "hidden";
+	document.getElementById("scan").style.visibility = "visible";
+
+//	setAspectRatio(document.getElementById("scan"), document.getElementById("scan").style.height);
+
+	startValue = 1;
+}
+
+function initialize()
+{
+	container = document.createElement( 'div' );
+	document.body.appendChild( container );
+
+	document.getElementById("main").style.visibility = "visible";
+	document.getElementById("start").style.visibility = "hidden";
+	document.getElementById("scan").style.visibility = "hidden";
+	document.getElementById("init").style.visibility = "hidden";
+
+	totalCount = 0;
+	startValue = 0;
+
+	scene = new THREE.Scene();
+
+	light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+	light.position.set( 0, 200, 0 );
+	scene.add( light );
+
+	light = new THREE.DirectionalLight( 0xffffff );
+	light.position.set( 0, 200, 100 );
+	light.castShadow = true;
+	light.shadow.camera.top = 180;
+	light.shadow.camera.bottom = - 100;
+	light.shadow.camera.left = - 120;
+	light.shadow.camera.right = 120;
+	scene.add( light );
+				
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
+		alpha: true
+	});
+
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+
+	renderer.setPixelRatio( window.devicePixelRatio );
+
+	renderer.setSize( 800, 600 );
+
+	renderer.shadowMap.enabled = true;
+
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement);
+
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitSource
+	////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		sourceType : 'webcam',
+	});
+
+	function onResize()
+	{
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if ( arToolkitContext.arController !== null )
+		{
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	});
+	
+	// handle resize event
+	window.addEventListener('resize', function(){
+		onResize()
+	});
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitContext
+	////////////////////////////////////////////////////////////	
+
+	// create atToolkitContext
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: 'data/camera_para.dat',
+		detectionMode: 'mono'
+	});
+	
+	// copy projection matrix to camera when initialization complete
+	arToolkitContext.init( function onCompleted(){
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	});
+
+	////////////////////////////////////////////////////////////
+	// setup markerRoots
+	////////////////////////////////////////////////////////////
+
+	// build markerControls
+	markerNames = ["01", "02", "03", "04"];
+	
+	markerArray = [];
+	objectArray = [];
+
+	for (let i = 0; i < markerNames.length; i++)
+	{
+		let marker = new THREE.Group();
+		scene.add(marker);
+		markerArray.push(marker);
+		
+		let markerControls = new THREEx.ArMarkerControls(arToolkitContext, marker, {
+			type: 'pattern', patternUrl: "data/" + markerNames[i] + ".patt",
+		});
+	}
+
+	function onProgress1(xhr) { 
+
+		var prog = xhr.loaded / totalSizeAry[0] * 100;
+		var a = Math.round(totalCount * 25 + prog / 4);
+		var _percent = a / 100 * 25.5;
+		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+		if(xhr.loaded == totalSizeAry[0]) {
+			totalCount = totalCount + 1;	
+		}
+
+		if(totalCount == 4)
+		{
+			document.getElementById("start").style.visibility = "visible";
+			document.getElementById("load01").style.visibility = "hidden";
+			document.getElementById("load02").style.visibility = "hidden";
+			$("#loadingbar").css("display", "none");
+		}
+	}
+	function onProgress2(xhr) { 
+
+		var prog = xhr.loaded / totalSizeAry[1] * 100;
+		var a = Math.round(totalCount * 25 + prog / 4);
+		var _percent = a / 100 * 25.5;
+		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+		if(xhr.loaded == totalSizeAry[1]) {
+			totalCount = totalCount + 1;	
+		}
+
+		if(totalCount == 4)
+		{
+			document.getElementById("start").style.visibility = "visible";
+			document.getElementById("load01").style.visibility = "hidden";
+			document.getElementById("load02").style.visibility = "hidden";
+			$("#loadingbar").css("display", "none");
+		}
+	}
+	function onProgress3(xhr) { 
+
+		var prog = xhr.loaded / totalSizeAry[2] * 100;
+		var a = Math.round(totalCount * 25 + prog / 4);
+		var _percent = a / 100 * 25.5;
+		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+		if(xhr.loaded == totalSizeAry[2]) {
+			totalCount = totalCount + 1;	
+		}
+
+		if(totalCount == 4)
+		{
+			document.getElementById("start").style.visibility = "visible";
+			document.getElementById("load01").style.visibility = "hidden";
+			document.getElementById("load02").style.visibility = "hidden";
+			$("#loadingbar").css("display", "none");
+		}
+	}
+	function onProgress4(xhr) { 
+
+		var prog = xhr.loaded / totalSizeAry[3] * 100;
+		var a = Math.round(totalCount * 25 + prog / 4);
+		var _percent = a / 100 * 25.5;
+		$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+		if(xhr.loaded == totalSizeAry[3]) {
+			totalCount = totalCount + 1;	
+		}
+
+		if(totalCount == 4)
+		{
+			document.getElementById("start").style.visibility = "visible";
+			document.getElementById("load01").style.visibility = "hidden";
+			document.getElementById("load02").style.visibility = "hidden";
+			$("#loadingbar").css("display", "none");
+		}
+	}
+
+	function onError(xhr) { console.log( 'An error happened' ); }
+
+	// model
+
+	var loader1 = new THREE.FBXLoader();
+	loader1.load( 'models/Healy.fbx', function ( object ) {
+
+		object.scale.setScalar(0.007);
+		object.position.set(0, 0, 0); 
+
+		object.mixer = new THREE.AnimationMixer( object );
+		mixers.push( object.mixer );
+
+		var action = object.mixer.clipAction( object.animations[ 0 ] );
+		action.play();
+
+		markerArray[0].add( object );
+
+		objectArray[0] = object;
+
+		CurObjIndex = 0;
+
+	} , onProgress1, onError);
+
+	// model
+	var loader2 = new THREE.FBXLoader();
+	loader2.load( 'models/HP.fbx', function ( object ) {
+
+		object.scale.setScalar(0.005);
+        object.position.set(-0.4, 0, 0.15); 
+
+		markerArray[1].add( object );
+
+		objectArray[1] = object;
+
+	} , onProgress2, onError);
+
+	// model
+	var loader3 = new THREE.FBXLoader();
+	loader3.load( 'models/Maddinson.fbx', function ( object ) {
+
+		object.scale.setScalar(0.007);
+        object.position.set(0, 0, 0); 
+
+		markerArray[2].add( object );
+
+		objectArray[2] = object;
+
+	} , onProgress3, onError);
+
+	// model
+	var loader4 = new THREE.FBXLoader();
+	loader4.load( 'models/Syd.fbx', function ( object ) {
+
+		object.scale.setScalar(0.004);
+        object.position.set(0, 0, 0); 
+
+		markerArray[3].add( object );
+
+		objectArray[3] = object;
+
+	} , onProgress4, onError);
+
+	currentMarkerName = markerNames[0];
+}
+
+function update()
+{
+	if(totalCount == 4 && startValue == 1)
+	{
+		let anyMarkerVisible = false;
+		for (let i = 0; i < markerArray.length; i++)
+		{
+			if ( markerArray[i].visible )
+			{
+				anyMarkerVisible = true;
+				if ( currentMarkerName != markerNames[i] )
+				{
+					currentMarkerName = markerNames[i];
+					mixers = [];
+
+					objectArray[i].mixer = new THREE.AnimationMixer( objectArray[i] );
+		            CurObjIndex = i;
+
+		            markerArray[CurObjIndex].position.set(0, 0, 0);
+		            markerArray[CurObjIndex].rotation.set(0, 0, 0);
+
+					mixers.push( objectArray[i].mixer );
+					var action = objectArray[i].mixer.clipAction( objectArray[i].animations[ 0 ] );
+					action.play();
+				}
+
+				document.getElementById("scan").style.visibility = "hidden";
+				document.getElementById("init").style.visibility = "visible";
+				fadeIn(document.getElementById("init"));
+
+				break;
+			}
+		}
+
+		if (objectArray[0] && !anyMarkerVisible )
+		{
+			document.getElementById("scan").style.visibility = "visible";
+		}
+/*
+		if(objectArray[CurObjIndex])
+		{
+			var pos = markerArray[CurObjIndex].position;
+			var rot = markerArray[CurObjIndex].rotation;
+
+			if(pos != {x:0,y:0,z:0})
+			{
+				markerArray[CurObjIndex].position.set(0, 0, 0); 
+			}
+			if(rot != {x:0,y:0,z:0})
+			{
+				markerArray[CurObjIndex].rotation.set(0, 0, 0);
+			}
+		}
+*/		
+	}
+
+	// update artoolkit on every frame
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
+}
+
+function animate()
+{
+	requestAnimationFrame( animate );
+	if ( mixers.length > 0 ) {
+		for ( var i = 0; i < mixers.length; i ++ ) {
+			mixers[ i ].update( clock.getDelta() );
+		}
+	}
+
+	update();
+
+	renderer.render( scene, camera );
+}
+
+// Detach the Tracks from the DOM.
+function detachTracks(tracks) {
+  let isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+  tracks.forEach(function(track) {
+    if (isSafari) {
+      track._attachments.forEach(function(element) {
+        element.remove();
+      });
+    } else {
+      track.detach().forEach(function(detachedElement) {
+        detachedElement.remove();
+      });
+    }
+  });
+}
+
+function setImageVisible(id, visible) {
+    var img = document.getElementById(id);
+    img.style.visibility = (visible ? 'visible' : 'hidden');
+}
+
+function fadeIn(el) {
+    el.style.opacity = 1;
+    var tick = function () {
+        el.style.opacity = el.style.opacity - 0.01;
+        if (el.style.opacity > 0) {
+            (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 2)
+        }
+    };
+    tick();
+}
+
+function getSize() {
+  var myWidth = 0, myHeight = 0;
+  if( typeof( window.innerWidth ) == 'number' ) {
+    //Non-IE
+    myWidth = window.innerWidth;
+    myHeight = window.innerHeight;
+  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+    //IE 6+ in 'standards compliant mode'
+    myWidth = document.documentElement.clientWidth;
+    myHeight = document.documentElement.clientHeight;
+  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+    //IE 4 compatible
+    myWidth = document.body.clientWidth;
+    myHeight = document.body.clientHeight;
+  }
+}
+
+$(document).ready(function(){
+    $("#start").click(function(){
+    	myFunction();
+   });
+});
+
+</script>
+</body>
+</html>
