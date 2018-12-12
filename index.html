@@ -168,7 +168,7 @@ function initialize()
 	let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
 
 	let video1 = document.getElementById( 'video1' );
-	video1.stop();
+	video1.pause();
 
 	let texture1 = new THREE.VideoTexture( video1 );
 	texture1.minFilter = THREE.LinearFilter;
