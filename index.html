@@ -20,7 +20,7 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-<video id="video1" autoplay="true" loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+<video id="video1" autoplay="false" loop crossOrigin="anonymous" webkit-playsinline style="display:none">
 	<source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type="video/mp4">
 </video>
 
@@ -228,6 +228,14 @@ function Func4() {
 
 function update()
 {
+	if(markerArray[0].visible)
+	{
+		document.getElementById( 'video1' ).load();
+		document.getElementById( 'video1' ).play();
+	}
+	else{
+		document.getElementById( 'video1' ).pause();
+	}
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
