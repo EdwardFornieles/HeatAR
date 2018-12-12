@@ -5085,8 +5085,8 @@ input[type="button"].btn-block {
 }
 
 .progress-bar-striped {
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-size: 0.4rem 0.5rem;
+  background-image: linear-gradient(45deg, rgba(2, 163, 174, 0.15) 25%, transparent 25%, transparent 50%, rgba(2, 163, 174, 0.15) 50%, rgba(2, 163, 174, 0.15) 75%, transparent 75%, transparent);
+  background-size: 0.4rem 0.4rem;
 }
 
 .progress-bar-animated {
@@ -6123,7 +6123,7 @@ button.bg-warning:focus {
 }
 
 .bg-danger {
-  background-color: #02a3ae !important;
+  background-color: #006e7500 !important;
 }
 
 a.bg-danger:hover, a.bg-danger:focus,
