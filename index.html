@@ -16,15 +16,10 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-<video id="video" autoplay loop crossOrigin="anonymous" webkit-playsinline style="display:none">
-	<source src="https://www.dropbox.com/s/wz6g3csblp6q5le/sintel.mp4?raw=1" type='video/mp4;'>
+<video id="video1" autoplay="true" loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+	<source src="https://www.dropbox.com/s/wz6g3csblp6q5le/sintel.mp4?raw=1" type="video/mp4">
 </video>
 		
-<!-- 
-  Example created by Lee Stemkoski: https://github.com/stemkoski
-  Based on the AR.js library and examples created by Jerome Etienne: https://github.com/jeromeetienne/AR.js/
--->
-
 <script>
 
 var scene, camera, renderer, clock, deltaTime, totalTime;
@@ -118,7 +113,7 @@ function initialize()
 
 	let geometry1 = new THREE.PlaneBufferGeometry(2,2, 4,4);
 
-	let video = document.getElementById( 'video' );
+	let video = document.getElementById( 'video1' );
 	let texture = new THREE.VideoTexture( video );
 	texture.minFilter = THREE.LinearFilter;
 	texture.magFilter = THREE.LinearFilter;
