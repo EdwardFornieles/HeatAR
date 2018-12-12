@@ -179,7 +179,7 @@ function initialize()
 	
 	markerArray[0].add( mesh1 );
 
-	objectArray[0] = mesh1;
+	objectArray[0] = video1;
 
 	CurObjIndex = 0;
 
@@ -198,7 +198,7 @@ function initialize()
 	
 	markerArray[1].add( mesh2 );
 
-	objectArray[2] = mesh2;
+	objectArray[2] = video2;
 
 	currentMarkerName = markerNames[0];
 
@@ -231,9 +231,9 @@ function update()
 				{
 					currentMarkerName = markerNames[i];
 
-
+					objectArray[CurObjIndex].stop();
 		            CurObjIndex = i;
-
+					objectArray[CurObjIndex].play();
 				}
 
 				document.getElementById("scan").style.visibility = "hidden";
@@ -247,6 +247,7 @@ function update()
 		if (objectArray[0] && !anyMarkerVisible )
 		{
 			document.getElementById("scan").style.visibility = "visible";
+			objectArray[CurObjIndex].stop();
 		}
 	}
 
