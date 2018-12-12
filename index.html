@@ -202,20 +202,45 @@ function initialize()
 
 	currentMarkerName = markerNames[0];
 
-	totalCount = totalCount + 1;
+	setTimeout(Func1, 1000);
+	setTimeout(Func2, 2000);
+	setTimeout(Func3, 3000);
+	setTimeout(Func4, 4000);
+}
+
+function Func1() {
+	var prog = 50;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+}
+function Func2() {
 	var prog = 100;
 	var a = Math.round(totalCount * 50 + prog / 2);
 	var _percent = a / 100 * 25.5;
 	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
 
 	totalCount = totalCount + 1;
+}
+function Func3() {
+	var prog = 50;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+}
+function Func4() {
+	var prog = 100;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
 
 	document.getElementById("start").style.visibility = "visible";
 	document.getElementById("load01").style.visibility = "hidden";
 	document.getElementById("load02").style.visibility = "hidden";
 	$("#loadingbar").css("display", "none");
-}
 
+	totalCount = totalCount + 1;
+}
 
 function update()
 {
