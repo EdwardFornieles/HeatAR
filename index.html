@@ -20,7 +20,7 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-<video id="video1" autoplay="false" loop style="display:none">
+<video id="video1" autoplay="false" loop style="display:none; position: absolute;">
 	<source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type="video/mp4">
 </video>
 
@@ -52,7 +52,9 @@ var totalCount;
 
 var startValue;
 
+var myWidth = 0, myHeight = 0;
 
+getSize();
 initialize();
 animate();
 
@@ -229,8 +231,15 @@ function update()
 	if(markerArray[0].visible)
 	{
 		console.log(markerArray[0]);
-		document.getElementById( 'video1' ).style.visibility = "visible";
-		document.getElementById( 'video1' ).play();
+		var obj = document.getElementById( 'video1' );
+		obj.style.width = "20%";
+		obj.style.height = "20%";
+
+		obj.style.left = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 5;	
+		obj.style.top = myHeight * (markerArray[0].position.y + 1) / 2 - myHeight / 5;	
+
+		obj.style.display = "visible";
+		obj.play();
 	}
 	else{
 		document.getElementById( 'video1' ).pause();
@@ -290,6 +299,21 @@ $(document).ready(function(){
    });
 });
 
+function getSize() {
+  if( typeof( window.innerWidth ) == 'number' ) {
+    //Non-IE
+    myWidth = window.innerWidth;
+    myHeight = window.innerHeight;
+  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+    //IE 6+ in 'standards compliant mode'
+    myWidth = document.documentElement.clientWidth;
+    myHeight = document.documentElement.clientHeight;
+  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+    //IE 4 compatible
+    myWidth = document.body.clientWidth;
+    myHeight = document.body.clientHeight;
+  }
+}
 </script>
 
 </body>
