@@ -20,7 +20,7 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-<video id="video1" autoplay="false" loop style="display:none; position: absolute;">
+<video id="video1" autoplay="false" loop style="visibility: none; position: absolute;">
 	<source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type="video/mp4">
 </video>
 
@@ -235,10 +235,12 @@ function update()
 		obj.style.width = "20%";
 		obj.style.height = "20%";
 
-		obj.style.left = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 5;	
-		obj.style.top = myHeight * (markerArray[0].position.y + 1) / 2 - myHeight / 5;	
+		var a = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 5;
+		var b = myHeight * (markerArray[0].position.y + 1) / 2 - myHeight / 5;
+		obj.style.left = a + "px";	
+		obj.style.top = b + "px";
 
-		obj.style.display = "visible";
+		obj.style.visibility = "visible";
 		obj.play();
 	}
 	else{
