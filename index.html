@@ -33,7 +33,7 @@
 
 <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated " id="loadingbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style=" position: absolute; height: 1.75%; width: 0%; left: 68.6%; bottom: 87.73%;border-radius: 10px; z-index: 900"> </div>
 
-<video id="video1" class="video-js vjs-default-skin" loop preload="none" width="640" height="264" data-setup="{}">
+<video id="video1" class="video-js vjs-default-skin" autoplay loop preload="none" width="640" height="264" data-setup="{}">
     <source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type='video/mp4' />
 </video>
 		
@@ -229,7 +229,7 @@ function update()
 {
 	if(markerArray[0].visible)
 	{
-		document.getElementById( 'video1' ).play();
+//		document.getElementById( 'video1' ).play();
 	}
 	else{
 		//document.getElementById( 'video1' ).pause();
