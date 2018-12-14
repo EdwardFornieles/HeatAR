@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>HeatAR</title>
+	<!-- include three.js library -->
+	<script src='js/three.js'></script>
+	<!-- include jsartookit -->
+	<script src="jsartoolkit5/artoolkit.min.js"></script>
+	<script src="jsartoolkit5/artoolkit.api.js"></script>
+	<!-- include threex.artoolkit -->
+	<script src="threex/threex-artoolkitsource.js"></script>
+	<script src="threex/threex-artoolkitcontext.js"></script>
+	<script src="threex/threex-arbasecontrols.js"></script>
+	<script src="threex/threex-armarkercontrols.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+  	<script src="js/jquery.min.js"></script>
+  	<script src="js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="js/cors.js"></script>
+
+</head>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+<video id="video1" autoplay="false" crossOrigin="anonymous" webkit-playsinline loop style="display: none">
+  <source src="https://github.com/EdwardFornieles/HeatAR/blob/master/video/01.mp4?raw=1" type="video/mp4">
+</video>
+
+<img src="images/main.png" id="main" style="width: 100%; height: 100%; left: 0px, right: 0px" />
+<img src="images/Loading1.png" id="load01" style="position: absolute; width: 25%; height: 17.34%; left: 68.61%; bottom: 77.9%" />
+<img src="images/Loading01.png" id="load02" style="position: absolute; width: 25.97%; height: 1.81%; left: 68.42%; bottom: 87.73%" />
+<img src="images/StartBtn.png" id="start" style="position: absolute; width: 40.56%; height: 6.7%; left: 29.74%; bottom: 13.77%; z-index: 999" />
+
+<img src="images/scan.png" id="scan" style="position: absolute; width: 25%; height: 18.44%; left: 68.61%; bottom: 77.06%" />
+<img src="images/init.png" id="init" style="position: absolute; width: 25%; height: 18.44%; left: 68.61%; bottom: 77.06%" />
+
+<div class="progress-bar bg-danger progress-bar-striped progress-bar-animated " id="loadingbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style=" position: absolute; height: 1.75%; width: 0%; left: 68.6%; bottom: 87.73%;border-radius: 10px; z-index: 900"> </div>
+		
+<script>
+
+var scene, camera, renderer, deltaTime, totalTime, light, clock;
+
+var arToolkitSource, arToolkitContext;
+
+var markerNames, markerArray, currentMarkerName;
+var mesh1, mesh2;
+
+var objectArray;
+
+var CurObjIndex;
+
+var totalCount;
+
+var startValue;
+
+var myWidth = 0, myHeight = 0;
+
+getSize();
+initialize();
+animate();
+
+function myFunction(){
+	document.getElementById("main").style.visibility = "hidden";
+	document.getElementById("start").style.visibility = "hidden";
+	document.getElementById("scan").style.visibility = "visible";
+
+	startValue = 1;
+}
+
+function initialize()
+{
+	document.getElementById("main").style.visibility = "visible";
+	document.getElementById("start").style.visibility = "hidden";
+	document.getElementById("scan").style.visibility = "hidden";
+	document.getElementById("init").style.visibility = "hidden";
+
+	totalCount = 0;
+	startValue = 0;
+
+
+	scene = new THREE.Scene();
+
+	let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+	scene.add( ambientLight );
+				
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	renderer.setSize( 640, 480 );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitSource
+	////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		sourceType : 'webcam',
+	});
+
+	function onResize()
+	{
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if ( arToolkitContext.arController !== null )
+		{
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	});
+	
+	// handle resize event
+	window.addEventListener('resize', function(){
+		onResize()
+	});
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitContext
+	////////////////////////////////////////////////////////////	
+
+	// create atToolkitContext
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: 'data/camera_para.dat',
+		detectionMode: 'mono'
+	});
+	
+	// copy projection matrix to camera when initialization complete
+	arToolkitContext.init( function onCompleted(){
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	});
+
+	////////////////////////////////////////////////////////////
+	// setup markerRoots
+	////////////////////////////////////////////////////////////
+
+	// build markerControls
+	markerNames = ["01", "02"];
+	
+	markerArray = [];
+	objectArray = [];
+
+	for (let i = 0; i < markerNames.length; i++)
+	{
+		let marker = new THREE.Group();
+		scene.add(marker);
+		markerArray.push(marker);
+		
+		let markerControls = new THREEx.ArMarkerControls(arToolkitContext, marker, {
+			type: 'pattern', patternUrl: "data/" + markerNames[i] + ".patt",
+		});
+	}
+
+
+	//first video
+	let geometry1 = new THREE.PlaneBufferGeometry(1.778,1, 4,4);
+
+	let video1 = document.getElementById( 'video1' );
+
+	let texture1 = new THREE.VideoTexture( video1 );
+	texture1.minFilter = THREE.LinearFilter;
+	texture1.magFilter = THREE.LinearFilter;
+	texture1.format = THREE.RGBFormat;
+
+	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
+	
+	mesh1 = new THREE.Mesh( geometry1, material1 );
+	mesh1.rotation.x = -Math.PI/2;
+	
+	markerArray[0].add( mesh1 );
+
+	objectArray[0] = video1;
+
+	CurObjIndex = 0;
+
+	currentMarkerName = markerNames[0];
+
+	setTimeout(Func1, 1000);
+	setTimeout(Func2, 2000);
+	setTimeout(Func3, 3000);
+	setTimeout(Func4, 4000);
+}
+
+function Func1() {
+	var prog = 50;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+}
+function Func2() {
+	var prog = 100;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+	totalCount = totalCount + 1;
+}
+function Func3() {
+	var prog = 50;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+}
+function Func4() {
+	var prog = 100;
+	var a = Math.round(totalCount * 50 + prog / 2);
+	var _percent = a / 100 * 25.5;
+	$('#loadingbar').css('width', _percent+'%').attr('aria-valuenow', a);
+
+	document.getElementById("start").style.visibility = "visible";
+	document.getElementById("load01").style.visibility = "hidden";
+	document.getElementById("load02").style.visibility = "hidden";
+	$("#loadingbar").css("display", "none");
+
+	totalCount = totalCount + 1;
+}
+
+function requestCORSIfNotSameOrigin(img, url) {
+    if ((new URL(url)).origin !== window.location.origin) {
+      img.crossOrigin = "";
+    }
+  }
+
+function update()
+{
+	if(markerArray[0].visible)
+	{
+//		console.log(markerArray[0].MeshBasicMaterial);
+//		var obj = document.getElementById( 'video1' );
+		// obj.style.width = "50%";
+		// obj.style.height = "28.2%";
+
+		// var a = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 25;
+		// var b = myHeight * (1 - markerArray[0].position.y) / 2 - myHeight / 14.1;
+		// obj.style.left = a + "px";	
+		// obj.style.top = b + "px";
+
+//		obj.style.display = "-webkit-box";
+		objectArray[0].play();
+	}
+	else{
+//		document.getElementById( 'video1' ).style.display = "none";
+//		document.getElementById( 'video1' ).pause();
+		objectArray[0].pause();
+	}
+	// update artoolkit on every frame
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
+}
+
+
+function animate()
+{
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+
+	update();
+
+	renderer.render( scene, camera );
+}
+
+// Detach the Tracks from the DOM.
+function detachTracks(tracks) {
+  let isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+  tracks.forEach(function(track) {
+    if (isSafari) {
+      track._attachments.forEach(function(element) {
+        element.remove();
+      });
+    } else {
+      track.detach().forEach(function(detachedElement) {
+        detachedElement.remove();
+      });
+    }
+  });
+}
+
+function setImageVisible(id, visible) {
+    var img = document.getElementById(id);
+    img.style.visibility = (visible ? 'visible' : 'hidden');
+}
+
+function fadeIn(el) {
+    el.style.opacity = 1;
+    var tick = function () {
+        el.style.opacity = el.style.opacity - 0.01;
+        if (el.style.opacity > 0) {
+            (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 2)
+        }
+    };
+    tick();
+}
+
+$(document).ready(function(){
+    $("#start").click(function(){
+    	myFunction();
+   });
+});
+
+function getSize() {
+  if( typeof( window.innerWidth ) == 'number' ) {
+    //Non-IE
+    myWidth = window.innerWidth;
+    myHeight = window.innerHeight;
+  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+    //IE 6+ in 'standards compliant mode'
+    myWidth = document.documentElement.clientWidth;
+    myHeight = document.documentElement.clientHeight;
+  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+    //IE 4 compatible
+    myWidth = document.body.clientWidth;
+    myHeight = document.body.clientHeight;
+  }
+}
+</script>
+
+</body>
+</html>
