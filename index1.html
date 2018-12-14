@@ -79,6 +79,7 @@ function initialize()
 
 	totalCount = 0;
 	startValue = 0;
+	CurObjIndex = -1;
 
 
 	scene = new THREE.Scene();
@@ -187,8 +188,6 @@ function initialize()
 
 	objectArray[0] = video1;
 
-	CurObjIndex = 0;
-
 	//second video
 	let geometry2 = new THREE.PlaneBufferGeometry(1.778,1, 4,4);
 
@@ -287,6 +286,7 @@ function update()
 		if (!anyMarkerVisible)
 		{
 			objectArray[CurObjIndex].pause();
+			document.getElementById("scan").style.visibility = "visible";
 		}
 	}else{
 		objectArray[0].pause();
