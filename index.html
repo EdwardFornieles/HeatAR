@@ -174,7 +174,6 @@ function initialize()
 	texture1.format = THREE.RGBFormat;
 
 	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
-//	let material1 = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5 } );
 	
 	mesh1 = new THREE.Mesh( geometry1, material1 );
 	mesh1.rotation.x = -Math.PI/2;
@@ -238,7 +237,7 @@ function update()
 	if(markerArray[0].visible)
 	{
 //		console.log(markerArray[0].MeshBasicMaterial);
-		var obj = document.getElementById( 'video1' );
+//		var obj = document.getElementById( 'video1' );
 		// obj.style.width = "50%";
 		// obj.style.height = "28.2%";
 
@@ -247,12 +246,13 @@ function update()
 		// obj.style.left = a + "px";	
 		// obj.style.top = b + "px";
 
-		obj.style.display = "-webkit-box";
-		obj.play();
+//		obj.style.display = "-webkit-box";
+		objectArray[0].play();
 	}
 	else{
-		document.getElementById( 'video1' ).style.display = "none";
-		document.getElementById( 'video1' ).pause();
+//		document.getElementById( 'video1' ).style.display = "none";
+//		document.getElementById( 'video1' ).pause();
+		objectArray[0].pause();
 	}
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
