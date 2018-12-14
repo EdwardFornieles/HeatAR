@@ -285,7 +285,10 @@ function update()
 		}
 		if (!anyMarkerVisible)
 		{
-			objectArray[CurObjIndex].pause();
+			if(CurObjIndex >= 0)
+			{
+				objectArray[CurObjIndex].pause();
+			}
 			document.getElementById("scan").style.visibility = "visible";
 		}
 	}else{
