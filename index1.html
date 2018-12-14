@@ -26,7 +26,7 @@
   <source src="video/01.mp4" type="video/mp4">
 </video>
 
-<video id="video2" autoplay="false" controls crossOrigin="anonymous" webkit-playsinline loop style="display: none">
+<video id="video2" autoplay="false" muted="true" crossOrigin="anonymous" webkit-playsinline style="display: none">
   <source src="video/02.mp4" type="video/mp4">
 </video>
 
@@ -282,10 +282,11 @@ function update()
 				{
 					if(CurObjIndex >= 0)
 					{
-//						objectArray[CurObjIndex].pause();
+						objectArray[CurObjIndex].pause();
 					}
 		            CurObjIndex = i;
-//					objectArray[CurObjIndex].play();
+					objectArray[CurObjIndex].load();
+					objectArray[CurObjIndex].play();
 				}
 
 				document.getElementById("scan").style.visibility = "hidden";
@@ -299,13 +300,13 @@ function update()
 		{
 			if(CurObjIndex >= 0)
 			{
-//				objectArray[CurObjIndex].pause();
+				objectArray[CurObjIndex].pause();
 			}
 			document.getElementById("scan").style.visibility = "visible";
 		}
 	}else{
-//		objectArray[0].pause();
-//		objectArray[1].pause();
+		objectArray[0].pause();
+		objectArray[1].pause();
 	}
 
 	// update artoolkit on every frame
