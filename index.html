@@ -163,12 +163,12 @@ function initialize()
 		});
 	}
 
-/*
+
 	//first video
 	let geometry1 = new THREE.PlaneBufferGeometry(1.778,1, 4,4);
 
 	let video1 = document.getElementById( 'video1' );
-
+/*
 	let texture1 = new THREE.VideoTexture( video1 );
 	texture1.minFilter = THREE.LinearFilter;
 	texture1.magFilter = THREE.LinearFilter;
@@ -177,11 +177,11 @@ function initialize()
 	
 	mesh1 = new THREE.Mesh( geometry1, material1 );
 	mesh1.rotation.x = -Math.PI/2;
-	
-	markerArray[0].add( mesh1 );
+*/	
+	markerArray[0].add( video1 );
 
 	objectArray[0] = video1;
-*/
+
 	CurObjIndex = 0;
 
 	currentMarkerName = markerNames[0];
@@ -231,14 +231,14 @@ function update()
 	if(markerArray[0].visible)
 	{
 		console.log(markerArray[0]);
-		var obj = document.getElementById( 'video1' );
-		obj.style.width = "50%";
-		obj.style.height = "28.2%";
+		// var obj = document.getElementById( 'video1' );
+		// obj.style.width = "50%";
+		// obj.style.height = "28.2%";
 
-		var a = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 25;
-		var b = myHeight * (1 - markerArray[0].position.y) / 2 - myHeight / 14.1;
-		obj.style.left = a + "px";	
-		obj.style.top = b + "px";
+		// var a = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 25;
+		// var b = myHeight * (1 - markerArray[0].position.y) / 2 - myHeight / 14.1;
+		// obj.style.left = a + "px";	
+		// obj.style.top = b + "px";
 
 		obj.style.display = "-webkit-box";
 		obj.play();
