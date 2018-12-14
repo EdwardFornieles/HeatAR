@@ -256,9 +256,8 @@ function Func4() {
 
 function myfunc()
 {
-	document.getElementById('video1').load();
-	document.getElementById('video1').play();
-
+	objectArray[0].load();
+	objectArray[1].load();
 }
 
 function requestCORSIfNotSameOrigin(img, url) {
@@ -285,8 +284,7 @@ function update()
 						objectArray[CurObjIndex].pause();
 					}
 		            CurObjIndex = i;
-					document.getElementById('video1').load();
-					document.getElementById('video1').play();
+					objectArray[CurObjIndex].play();
 				}
 
 				document.getElementById("scan").style.visibility = "hidden";
