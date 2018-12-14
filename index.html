@@ -173,7 +173,7 @@ function initialize()
 	texture1.minFilter = THREE.LinearFilter;
 	texture1.magFilter = THREE.LinearFilter;
 	texture1.format = THREE.RGBFormat;
-//	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
+	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
 	let material1 = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5 } );
 	
 	mesh1 = new THREE.Mesh( geometry1, material1 );
