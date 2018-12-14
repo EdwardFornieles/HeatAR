@@ -56,7 +56,17 @@ var startValue;
 var myWidth = 0, myHeight = 0;
 
 getSize();
-initialize();
+$(function() {
+	$.ajax({
+	  url: "http://michaelvinsome.com/GetData.php?id=1",
+	  context: document.body
+	}).done(function(data) {
+		var video = $('#video1')[0];
+		video.src = data;
+		video.load();
+		initialize();
+	});
+});
 animate();
 
 function myFunction(){
