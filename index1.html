@@ -269,6 +269,7 @@ function update()
 				anyMarkerVisible = true;
 				if ( currentMarkerName != markerNames[i] )
 				{
+					objectArray[CurObjIndex].pause();
 		            CurObjIndex = i;
 					objectArray[CurObjIndex].play();
 				}
@@ -280,8 +281,7 @@ function update()
 				break;
 			}
 		}
-
-		if (objectArray[0] && !anyMarkerVisible )
+		if (mesh1 && !anyMarkerVisible )
 		{
 			objectArray[CurObjIndex].pause();
 		}
