@@ -26,7 +26,7 @@
   <source src="video/01.mp4" type="video/mp4">
 </video>
 
-<video id="video1" autoplay="false" crossOrigin="anonymous" webkit-playsinline loop style="display: none">
+<video id="video2" autoplay="false" crossOrigin="anonymous" webkit-playsinline loop style="display: none">
   <source src="video/sintel.mp4" type="video/mp4">
 </video>
 
@@ -190,6 +190,26 @@ function initialize()
 
 	CurObjIndex = 0;
 
+	//second video
+//	let geometry1 = new THREE.PlaneBufferGeometry(1.778,1, 4,4);
+
+	let video2 = document.getElementById( 'video2' );
+
+	let texture2 = new THREE.VideoTexture( video2 );
+	texture2.minFilter = THREE.LinearFilter;
+	texture2.magFilter = THREE.LinearFilter;
+	texture2.format = THREE.RGBFormat;
+
+	let material2 = new THREE.MeshBasicMaterial( { map: texture2 } );
+	
+	mesh2 = new THREE.Mesh( geometry1, material2 );
+	mesh2.rotation.x = -Math.PI/2;
+	
+	markerArray[1].add( mesh2 );
+
+	objectArray[1] = video2;
+
+
 	currentMarkerName = markerNames[0];
 
 	setTimeout(Func1, 1000);
@@ -240,25 +260,12 @@ function requestCORSIfNotSameOrigin(img, url) {
 
 function update()
 {
-	if(markerArray[0].visible)
+	if(markerArray[1].visible)
 	{
-//		console.log(markerArray[0].MeshBasicMaterial);
-//		var obj = document.getElementById( 'video1' );
-		// obj.style.width = "50%";
-		// obj.style.height = "28.2%";
-
-		// var a = myWidth * (markerArray[0].position.x + 1) / 2 - myWidth / 25;
-		// var b = myHeight * (1 - markerArray[0].position.y) / 2 - myHeight / 14.1;
-		// obj.style.left = a + "px";	
-		// obj.style.top = b + "px";
-
-//		obj.style.display = "-webkit-box";
-		objectArray[0].play();
+		objectArray[1].play();
 	}
 	else{
-//		document.getElementById( 'video1' ).style.display = "none";
-//		document.getElementById( 'video1' ).pause();
-		objectArray[0].pause();
+		objectArray[1].pause();
 	}
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
