@@ -190,7 +190,24 @@ function initialize()
 
 	CurObjIndex = 0;
 
+	//second video
+	let geometry2 = new THREE.PlaneBufferGeometry(1.778,1, 4,4);
 
+	let video2 = document.getElementById( 'video2' );
+
+	let texture2 = new THREE.VideoTexture( video2 );
+	texture2.minFilter = THREE.LinearFilter;
+	texture2.magFilter = THREE.LinearFilter;
+	texture2.format = THREE.RGBFormat;
+
+	let material2 = new THREE.MeshBasicMaterial( { map: texture2 } );
+	
+	mesh2 = new THREE.Mesh( geometry2, material2 );
+	mesh2.rotation.x = -Math.PI/2;
+	
+	markerArray[1].add( mesh2 );
+
+	objectArray[1] = video2;
 
 
 	currentMarkerName = markerNames[0];
@@ -243,13 +260,32 @@ function requestCORSIfNotSameOrigin(img, url) {
 
 function update()
 {
-	if(markerArray[0].visible)
+		if(totalCount == 4 && startValue == 1)
 	{
-		objectArray[0].play();
-	}
-	else{
-		objectArray[0].pause();
-	}
+		let anyMarkerVisible = false;
+		for (let i = 0; i < markerArray.length; i++)
+		{
+			if ( markerArray[i].visible )
+			{
+				anyMarkerVisible = true;
+				if ( currentMarkerName != markerNames[i] )
+				{
+		            CurObjIndex = i;
+					objectArray[CurObjIndex].play();
+				}
+
+				document.getElementById("scan").style.visibility = "hidden";
+				document.getElementById("init").style.visibility = "visible";
+				fadeIn(document.getElementById("init"));
+
+				break;
+			}
+		}
+
+		if (objectArray[0] && !anyMarkerVisible )
+		{
+			objectArray[CurObjIndex].pause();
+		}
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
