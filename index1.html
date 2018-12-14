@@ -22,7 +22,7 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-<video onclick="tellmeclick()" id="video1" autoplay="false" controls crossOrigin="anonymous" webkit-playsinline loop style="display: none">
+<video id="video1" autoplay="false" preload="false" controls crossOrigin="anonymous" webkit-playsinline loop style="display: none">
   <source src="video/01.mp4" type="video/mp4">
 </video>
 
@@ -249,11 +249,8 @@ function Func4() {
 	currentMarkerName = "";
 
 	totalCount = totalCount + 1;
-}
 
-function tellmeclick()
-{
-	document.getElementById('video1').play();
+	document.getElementById('video1').load();
 }
 
 function requestCORSIfNotSameOrigin(img, url) {
