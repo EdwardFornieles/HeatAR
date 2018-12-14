@@ -16,19 +16,13 @@
   	<script src="js/jquery.min.js"></script>
   	<script src="js/bootstrap.min.js"></script>
 
-  <!-- Chang URLs to wherever Video.js files will be hosted -->
-  <link href="css/video-js.css" rel="stylesheet" type="text/css">
-  <!-- video.js must be in the <head> for older IEs to work. -->
-  <script src="js/video.js"></script>
-
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-
-  <video id="video1" class="video-js vjs-default-skin" loop data-setup="{}" style="display: none; position: absolute;">
-    <source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type='video/mp4' />
-  </video>
+<video id="video1" autoplay="false" crossOrigin="anonymous" loop style="display: none; position: absolute;">
+  <source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type="video/mp4">
+</video>
 
 <img src="images/main.png" id="main" style="width: 100%; height: 100%; left: 0px, right: 0px" />
 <img src="images/Loading1.png" id="load01" style="position: absolute; width: 25%; height: 17.34%; left: 68.61%; bottom: 77.9%" />
@@ -178,8 +172,6 @@ function initialize()
 	texture1.minFilter = THREE.LinearFilter;
 	texture1.magFilter = THREE.LinearFilter;
 	texture1.format = THREE.RGBFormat;
-
-	requestCORSIfNotSameOrigin(video1, "https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1");
 
 	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
 //	let material1 = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5 } );
