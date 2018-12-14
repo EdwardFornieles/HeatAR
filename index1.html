@@ -47,7 +47,6 @@ var scene, camera, renderer, deltaTime, totalTime, light, clock;
 var arToolkitSource, arToolkitContext;
 
 var markerNames, markerArray, currentMarkerName;
-var mesh1, mesh2;
 
 var objectArray;
 
@@ -181,7 +180,7 @@ function initialize()
 
 	let material1 = new THREE.MeshBasicMaterial( { map: texture1 } );
 	
-	mesh1 = new THREE.Mesh( geometry1, material1 );
+	var mesh1 = new THREE.Mesh( geometry1, material1 );
 	mesh1.rotation.x = -Math.PI/2;
 	
 	markerArray[0].add( mesh1 );
@@ -202,7 +201,7 @@ function initialize()
 
 	let material2 = new THREE.MeshBasicMaterial( { map: texture2 } );
 	
-	mesh2 = new THREE.Mesh( geometry2, material2 );
+	var mesh2 = new THREE.Mesh( geometry2, material2 );
 	mesh2.rotation.x = -Math.PI/2;
 	
 	markerArray[1].add( mesh2 );
@@ -260,7 +259,7 @@ function requestCORSIfNotSameOrigin(img, url) {
 
 function update()
 {
-		if(totalCount == 4 && startValue == 1)
+	if(totalCount == 4 && startValue == 1)
 	{
 		let anyMarkerVisible = false;
 		for (let i = 0; i < markerArray.length; i++)
@@ -286,6 +285,8 @@ function update()
 		{
 			objectArray[CurObjIndex].pause();
 		}
+	}
+	
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
