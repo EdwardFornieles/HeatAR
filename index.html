@@ -26,7 +26,7 @@
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
 
-  <video id="video1" class="video-js vjs-default-skin" controls loop data-setup="{}" style="display: none; position: absolute;">
+  <video id="video1" class="video-js vjs-default-skin" loop data-setup="{}" style="display: none; position: absolute;">
     <source src="https://www.dropbox.com/s/ukpultosy13utqu/Bring%20The%20Heat%20%28Online%29.mp4?raw=1" type='video/mp4' />
   </video>
 
@@ -236,7 +236,7 @@ function update()
 {
 	if(markerArray[0].visible)
 	{
-		console.log(video1);
+		console.log(markerArray[0].MeshBasicMaterial);
 		var obj = document.getElementById( 'video1' );
 		// obj.style.width = "50%";
 		// obj.style.height = "28.2%";
